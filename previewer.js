@@ -37,7 +37,7 @@ function onhoverupdate(event) {
     localStorage.setItem("posy", posy);
     timeout = setTimeout(() => {
         let displayed = false;
-        if (/^.*\.(png|jpg|jpeg)$/.test(hovel.href.toLowerCase()) && activated) { // If URL ends with image extensions and extension activated
+        if (/^.*\.(png|jpg|jpeg|webp)$/.test(hovel.href.toLowerCase()) && activated) { // If URL ends with image extensions and extension activated
             previmg.src = hovel.href;
             prevdiv.style.position = "fixed";
             prevdiv.style.top = (posy + 10).toString() + "px";

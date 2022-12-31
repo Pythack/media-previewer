@@ -5,3 +5,8 @@
     border: solid grey 1px;
     border-radius: 15px; */
 }
+
+#media-preview-div img {
+    max-width: 256px;
+    height: auto;
+}
