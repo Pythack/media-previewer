@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "Media previewer",
+  "author": "Pythack",
+  "version": "1.0.0",
+  "description": "Preview media by hovering over its URL",
+  "background": {
+    "scripts": []
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["previewer.js"],
+      "css": ["previewer.css"]
+    }
+  ],
+  "permissions": ["<all_urls>"]
+}
