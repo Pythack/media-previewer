@@ -81,7 +81,7 @@ function onhoverupdate(event) {
     localStorage.setItem("posy", posy);
     timeout = setTimeout(async () => {
         let mimetype = await getMIME(hovel.href);
-        if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase()) && activated) { // If URL ends with image extensions and extension activated
+        if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase()) && prevdiv.style.display == "none" && activated) { // If URL ends with image extensions and extension activated
             const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
             const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
             previmg.src = hovel.href;
