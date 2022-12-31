@@ -22,7 +22,8 @@ Name | Support
 :-- | :-:
 Preview images | ✔️
 Checkerboard background to see transparency | ✔️
-Smart placement: avoid overflow | ❌
+Basic smart placement (only directional relative to the cursor) | ✔️
+Advanced smart placement (adjust size) | ❌
 Preview hidden images (dynamically generated ie:by PHP) | ❌
 
 ### Feature request
