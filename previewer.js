@@ -1,11 +1,13 @@
 var activated = true;
 
-setInterval(() => {
-    const askforstatus = browser.runtime.sendMessage({request:"get-status"})
-    askforstatus.then((response) => {
-        activated = response.activated;
-    });
-}, 1000);
+const askforstatus = browser.runtime.sendMessage({request:"get-status"})
+askforstatus.then(async (response) => {
+    activated = await response;
+});
+
+browser.runtime.onMessage.addListener((message) => {
+    activated = message.activated? true:false;
+});
 
 var prevdiv = document.createElement("div");
 prevdiv.id = "media-preview-div";
