@@ -7,13 +7,18 @@ setInterval(() => {
     });
 }, 1000);
 
-let prevdiv = document.createElement("div");
+var prevdiv = document.createElement("div");
 prevdiv.id = "media-preview-div";
-let previmg = document.createElement("img");
+var prevdims = document.createElement("p");
+var previmgdiv = document.createElement("div");
+previmgdiv.id = "media-preview-img-div";
+var previmg = document.createElement("img");
 previmg.addEventListener("error", () => {
     prevdiv.style.display = "none";
 });
-prevdiv.appendChild(previmg);
+previmgdiv.appendChild(previmg);
+prevdiv.appendChild(prevdims);
+prevdiv.appendChild(previmgdiv);
 document.body.appendChild(prevdiv);
 var timeout;
 
@@ -23,6 +28,29 @@ function hidePreview() {
     prevdiv.style.display = "none";
 }
 
+function updateDimensions(event) {
+    const width = event.target.naturalWidth;
+    const height = event.target.naturalHeight;
+    prevdims.innerText = width.toString() + "x" + height.toString();
+}
+
+async function getMIME(url) {
+    return new Promise(function (resolve, reject) {
+        let xhr = new XMLHttpRequest();
+        xhr.open('HEAD', url, true);
+
+        xhr.onload = function() {
+            var contentType = xhr.getResponseHeader('Content-Type');
+            resolve(contentType);
+        };
+
+        xhr.onerror = function () {
+            reject();
+        }
+
+        xhr.send();
+    });
+}
 
 function onhoverupdate(event) {
     clearTimeout(timeout);
@@ -35,12 +63,14 @@ function onhoverupdate(event) {
     let posy = event.clientY;
     localStorage.setItem("posx", posx);
     localStorage.setItem("posy", posy);
-    timeout = setTimeout(() => {
+    timeout = setTimeout(async () => {
         let displayed = false;
-        if (/^.*\.(png|jpg|jpeg|webp)$/.test(hovel.href.toLowerCase()) && activated) { // If URL ends with image extensions and extension activated
+        let mimetype = await getMIME(hovel.href);
+        if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase()) && activated) { // If URL ends with image extensions and extension activated
             const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
             const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
             previmg.src = hovel.href;
+            previmg.onload = updateDimensions;
             prevdiv.style.position = "fixed";
             const offset = 10;
             if (posy >= vh/2) {
@@ -57,7 +87,7 @@ function onhoverupdate(event) {
                 prevdiv.style.left = (posx + offset).toString() + "px";
                 prevdiv.style.right = "";
             }
-            prevdiv.style.background = "repeating-conic-gradient(#404040 0% 25%, #ffffff 0% 50%) 50% / " + 10 + "px " + 10 + "px";
+            // prevdiv.style.background = "repeating-conic-gradient(#404040 0% 25%, #ffffff 0% 50%) 50% / " + 10 + "px " + 10 + "px";
             prevdiv.style.display = "block";
             displayed = true;
         }

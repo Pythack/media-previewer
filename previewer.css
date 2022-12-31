@@ -2,9 +2,20 @@
     display: none;
     position: fixed;
     z-index: 10000;
-    /* padding: 20px;
+    background: #ffffff;
+    padding: 15px;
     border: solid grey 1px;
-    border-radius: 15px; */
+    border-radius: 15px;
+}
+
+#media-preview-div p {
+    color: #000000;
+    margin-top: 0px;
+    margin-bottom: 15px;
+}
+
+#media-preview-div #media-preview-img-div {
+    background: repeating-conic-gradient(#404040 0% 25%, #ffffff 0% 50%) 50% / 10px 10px;
 }
 
 #media-preview-div img {
