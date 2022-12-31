@@ -77,14 +77,14 @@ function onhoverupdate(event) {
     }
     let posx = event.clientX;
     let posy = event.clientY;
-    localStorage.setItem("posx", posx);
-    localStorage.setItem("posy", posy);
     timeout = setTimeout(async () => {
-        let mimetype = await getMIME(hovel.href);
-        if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase()) && prevdiv.style.display == "none" && activated) { // If URL ends with image extensions and extension activated
+        const url = hovel.href;
+        let mimetype = await getMIME(url);
+        if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase()) && (prevdiv.style.display == "none" || localStorage.prevlink != url) && activated) { // If URL ends with image extensions and extension activated
             const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
             const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-            previmg.src = hovel.href;
+            hidePreview();
+            previmg.src = url;
             previmg.onload = updateDimensions;
             prevdiv.style.position = "fixed";
             const offset = 10;
@@ -104,6 +104,7 @@ function onhoverupdate(event) {
             }
             // prevdiv.style.background = "repeating-conic-gradient(#404040 0% 25%, #ffffff 0% 50%) 50% / " + 10 + "px " + 10 + "px";
             prevdiv.style.display = "block";
+            localStorage.prevlink = url;
         }
     }, 300);
 }
