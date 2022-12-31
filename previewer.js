@@ -29,6 +29,7 @@ prevdiv.appendChild(prevdims);
 prevdiv.appendChild(previmgdiv);
 document.body.appendChild(prevdiv);
 var timeout;
+var timeouthide;
 
 
 function hidePreview() {
@@ -64,7 +65,14 @@ function onhoverupdate(event) {
     clearTimeout(timeout);
     let hovel = event.target;
     if (!(hovel.localName == "a" || hovel.id == "media-preview-div" || (hovel.offsetParent && hovel.offsetParent.id == "media-preview-div"))) {
-        hidePreview();
+        if (timeouthide == null) {
+            timeouthide = setTimeout(hidePreview, 300);
+        }
+        return;
+    }
+    clearTimeout(timeouthide);
+    timeouthide = null;
+    if (hovel.localName != "a") {
         return;
     }
     let posx = event.clientX;
@@ -72,7 +80,6 @@ function onhoverupdate(event) {
     localStorage.setItem("posx", posx);
     localStorage.setItem("posy", posy);
     timeout = setTimeout(async () => {
-        let displayed = false;
         let mimetype = await getMIME(hovel.href);
         if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase()) && activated) { // If URL ends with image extensions and extension activated
             const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
@@ -97,7 +104,6 @@ function onhoverupdate(event) {
             }
             // prevdiv.style.background = "repeating-conic-gradient(#404040 0% 25%, #ffffff 0% 50%) 50% / " + 10 + "px " + 10 + "px";
             prevdiv.style.display = "block";
-            displayed = true;
         }
     }, 300);
 }
