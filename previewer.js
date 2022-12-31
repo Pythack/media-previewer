@@ -6,7 +6,13 @@ askforstatus.then(async (response) => {
 });
 
 browser.runtime.onMessage.addListener((message) => {
-    activated = message.activated? true:false;
+    switch (message.request) {
+        case "update-enable":
+            activated = message.activated? true:false;
+            break;
+        default:
+            break;
+    }
 });
 
 var prevdiv = document.createElement("div");
@@ -69,8 +75,8 @@ function onhoverupdate(event) {
         let displayed = false;
         let mimetype = await getMIME(hovel.href);
         if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase()) && activated) { // If URL ends with image extensions and extension activated
-            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
-            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
             previmg.src = hovel.href;
             previmg.onload = updateDimensions;
             prevdiv.style.position = "fixed";

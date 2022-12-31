@@ -26,11 +26,11 @@ browser.browserAction.onClicked.addListener(() => {
     getstorage.then(response => {
         if (response.disactivated) {
             browser.storage.local.set({disactivated: false});
-            sendToAllTabs({activated: true});
+            sendToAllTabs({request: "update-enable",activated: true});
             browser.browserAction.setIcon({path: browser.runtime.getURL('./iconactive.png')});
         } else {
             browser.storage.local.set({disactivated: true});
-            sendToAllTabs({activated: false});
+            sendToAllTabs({request: "update-enable",activated: false});
             browser.browserAction.setIcon({path: browser.runtime.getURL('./icondisabled.png')});
         }
     });
