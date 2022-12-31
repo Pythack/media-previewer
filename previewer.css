@@ -1,6 +1,7 @@
 #media-preview-div {
     display: none;
     position: fixed;
+    z-index: 10000;
     /* padding: 20px;
     border: solid grey 1px;
     border-radius: 15px; */

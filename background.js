@@ -26,10 +26,10 @@ browser.browserAction.onClicked.addListener(() => {
     getstorage.then(response => {
         if (response.disactivated) {
             browser.storage.local.set({disactivated: false});
-            browser.browserAction.setIcon({path: browser.extension.getURL('./iconactive.png')});
+            browser.browserAction.setIcon({path: browser.runtime.getURL('./iconactive.png')});
         } else {
             browser.storage.local.set({disactivated: true});
-            browser.browserAction.setIcon({path: browser.extension.getURL('./icondisabled.png')});
+            browser.browserAction.setIcon({path: browser.runtime.getURL('./icondisabled.png')});
         }
     });
 });

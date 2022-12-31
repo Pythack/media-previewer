@@ -42,7 +42,7 @@ function onhoverupdate(event) {
             const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
             previmg.src = hovel.href;
             prevdiv.style.position = "fixed";
-            const offset = 20;
+            const offset = 10;
             if (posy >= vh/2) {
                 prevdiv.style.bottom = (vh - posy + offset).toString() + "px";
                 prevdiv.style.top = "";
