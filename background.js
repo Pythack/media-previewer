@@ -1,7 +1,6 @@
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch(message.request) {
         case "get-status":
-            console.log(localStorage.activated);
             if (localStorage.activated == "true") {
                 sendResponse({activated: true});
             } else {
