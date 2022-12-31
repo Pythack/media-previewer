@@ -1,3 +1,12 @@
+var activated = true;
+
+setInterval(() => {
+    const askforstatus = browser.runtime.sendMessage({request:"get-status"})
+    askforstatus.then((response) => {
+        activated = response.activated;
+    });
+}, 1000);
+
 let prevdiv = document.createElement("div");
 prevdiv.id = "media-preview-div";
 let previmg = document.createElement("img");
@@ -28,11 +37,12 @@ function onhoverupdate(event) {
     localStorage.setItem("posy", posy);
     timeout = setTimeout(() => {
         let displayed = false;
-        if (/^.*\.(png|jpg|jpeg)$/.test(hovel.href.toLowerCase())) { // If URL ends with image extensions
+        if (/^.*\.(png|jpg|jpeg)$/.test(hovel.href.toLowerCase()) && activated) { // If URL ends with image extensions and extension activated
             previmg.src = hovel.href;
             prevdiv.style.position = "fixed";
             prevdiv.style.top = (posy + 10).toString() + "px";
             prevdiv.style.left = (posx + 10).toString() + "px";
+            prevdiv.style.background = "repeating-conic-gradient(#404040 0% 25%, #ffffff 0% 50%) 50% / " + 10 + "px " + 10 + "px";
             prevdiv.style.display = "block";
             displayed = true;
         }
