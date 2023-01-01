@@ -1,3 +1,7 @@
+if (typeof browser === "undefined") {
+    var browser = chrome;
+}
+
 var activated = true;
 
 const askforstatus = browser.runtime.sendMessage({request:"get-status"})

@@ -1,3 +1,7 @@
+if (typeof browser === "undefined") {
+    var browser = chrome;
+}
+
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch(message.request) {
         case "get-status":
