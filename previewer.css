@@ -22,3 +22,8 @@
     max-width: 256px;
     height: auto;
 }
+
+#media-preview-div video {
+    max-width: 512px;
+    height: auto;
+}
