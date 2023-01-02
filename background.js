@@ -20,22 +20,24 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function sendToAllTabs(object) {
     browser.tabs.query({}).then((result) => {
         result.forEach((tab) => {
-            browser.tabs.sendMessage(tab.id, object);
+            if (/^((chrome|about):\/\/.*|$)/.test(tab.url)) {
+                browser.tabs.sendMessage(tab.id, object);
+            }
         });
     });
 }
 
-browser.browserAction.onClicked.addListener(() => {
+browser.action.onClicked.addListener(() => {
     var getstorage = browser.storage.local.get();
     getstorage.then(response => {
         if (response.disactivated) {
             browser.storage.local.set({disactivated: false});
             sendToAllTabs({request: "update-enable",activated: true});
-            browser.browserAction.setIcon({path: browser.runtime.getURL('./iconactive.png')});
+            browser.action.setIcon({path: browser.runtime.getURL('./iconactive.png')});
         } else {
             browser.storage.local.set({disactivated: true});
             sendToAllTabs({request: "update-enable",activated: false});
-            browser.browserAction.setIcon({path: browser.runtime.getURL('./icondisabled.png')});
+            browser.action.setIcon({path: browser.runtime.getURL('./icondisabled.png')});
         }
     });
 });
