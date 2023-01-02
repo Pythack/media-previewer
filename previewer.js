@@ -2,23 +2,24 @@ if (typeof browser === "undefined") {
     var browser = chrome;
 }
 
-var activated = true;
+var activated = true; // Variable indicating if extension is enabled or not
 
-const askforstatus = browser.runtime.sendMessage({request:"get-status"})
+const askforstatus = browser.runtime.sendMessage({request:"get-status"}) // Ask for extension status
 askforstatus.then(async (response) => {
-    activated = await response;
+    activated = await response; // Set activated to status
 });
 
-browser.runtime.onMessage.addListener((message) => {
+browser.runtime.onMessage.addListener((message) => { // Listen for messages
     switch (message.request) {
-        case "update-enable":
-            activated = message.activated? true:false;
+        case "update-enable": // If extension has been enabled/disabled
+            activated = message.activated? true:false; // Update activated
             break;
         default:
             break;
     }
 });
 
+// Create preview element
 var prevdiv = document.createElement("div");
 prevdiv.id = "media-preview-div";
 var prevdims = document.createElement("p");
@@ -48,18 +49,18 @@ var timeout;
 var timeouthide;
 
 
-function hidePreview() {
+function hidePreview() { // Function to hide the preview
     previmg.src = "";
     prevdiv.style.display = "none";
 }
 
-function updateDimensions(event) {
+function updateDimensions(event) { // Adds the dimensions of the image on the preview
     const width = event.target.naturalWidth;
     const height = event.target.naturalHeight;
     prevdims.innerText = width.toString() + "x" + height.toString();
 }
 
-async function getMIME(url) {
+async function getMIME(url) { // Make a HTTP request to get Mime type of file
     return new Promise(function (resolve, reject) {
         let xhr = new XMLHttpRequest();
         xhr.open('HEAD', url, true);
@@ -77,30 +78,31 @@ async function getMIME(url) {
     });
 }
 
-function onhoverupdate(event) {
-    clearTimeout(timeout);
-    let hovel = event.target;
-    if (!(hovel.localName == "a" || hovel.id == "media-preview-div" || (hovel.offsetParent && hovel.offsetParent.id == "media-preview-div"))) {
-        if (timeouthide == null) {
-            timeouthide = setTimeout(hidePreview, 300);
+function onhoverupdate(event) { // When mouse hovers an element
+    clearTimeout(timeout); // Clear the previous timeout
+    let hovel = event.target; // Get the hovered element
+    if (!(hovel.localName == "a" || hovel.id == "media-preview-div" || (hovel.offsetParent && hovel.offsetParent.id == "media-preview-div"))) { // If the hovered element is neither a link, or an element on the preview
+        if (timeouthide == null) { // If timeout to hiding the previous is not set
+            timeouthide = setTimeout(hidePreview, 300); // Set timeout to hide preview
         }
+        return; // Abort
+    }
+    clearTimeout(timeouthide); // If the element passed the tests: abort hide preview timeout
+    timeouthide = null; // Set it to null
+    if (hovel.localName != "a") { // If it is not a link, abort
         return;
     }
-    clearTimeout(timeouthide);
-    timeouthide = null;
-    if (hovel.localName != "a") {
-        return;
-    }
-    let posx = event.clientX;
+    let posx = event.clientX; // Get position of mouse
     let posy = event.clientY;
-    timeout = setTimeout(async () => {
-        const url = hovel.href;
-        let mimetype = await getMIME(url);
-        if ((prevdiv.style.display == "none" || localStorage.prevlink != url) && activated) {
-            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    timeout = setTimeout(async () => { // Set timeout to show preview
+        const url = hovel.href; // Get the url the link points to
+        let mimetype = await getMIME(url); // Get mime type of file
+        if ((prevdiv.style.display == "none" || localStorage.prevlink != url) && activated) { // If the preview is not hidden or the link changed and the extension is activated
+            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0); // Get dimensions of the viewport
             const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-            hidePreview();
-            prevdiv.style.position = "fixed";
+            hidePreview(); // Hide the preview while it is updated
+            prevdiv.style.position = "fixed"; // Set position to fixed
+            // Decide where to place the preview depending on the position of the mouse in the viewport
             const offset = 10;
             if (posy >= vh/2) {
                 prevdiv.style.bottom = (vh - posy + offset).toString() + "px";
@@ -116,23 +118,23 @@ function onhoverupdate(event) {
                 prevdiv.style.left = (posx + offset).toString() + "px";
                 prevdiv.style.right = "";
             }
-            if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase())) { // If URL ends with image extensions and extension activated
-                previmg.src = url;
-                previmg.onload = updateDimensions;
-                prevvid.style.display = "none";
-                previmg.style.display = "block";
-                prevdiv.style.display = "block";
-                localStorage.prevlink = url;
-            } else if (/^video\/(mp4|x-matroska|avi)$/.test(mimetype.toLowerCase())) {
-                prevvidsrc.src = url;
-                prevvidsrc.type = mimetype;
-                prevvid.onload = updateDimensions;
-                prevdims.innerText = "";
-                previmg.style.display = "none";
-                prevvid.style.display = "block";
-                prevvid.load();
-                prevdiv.style.display = "block";
-                localStorage.prevlink = url;
+            if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase())) { // If file is an image
+                previmg.src = url; // Set the source to the url
+                previmg.onload = updateDimensions; // Update the dimensions
+                prevvid.style.display = "none"; // Hide video previewer
+                previmg.style.display = "block"; // Display image previewer
+                prevdiv.style.display = "block"; // Display preview
+                localStorage.prevlink = url; // Store link to compare later
+            } else if (/^video\/(mp4|x-matroska|avi)$/.test(mimetype.toLowerCase())) { // If file is a video
+                prevvidsrc.src = url; // Set the source to the url
+                prevvidsrc.type = mimetype; // Set the type to the MIME type
+                prevvid.onload = updateDimensions; // Update the dimensions
+                prevvid.load(); // Load video
+                prevdims.innerText = ""; // Hide dimensions (because dimension feature for video is not available yet)
+                previmg.style.display = "none"; // Hide image previewer
+                prevvid.style.display = "block"; // Display video previewer
+                prevdiv.style.display = "block"; // Display preview
+                localStorage.prevlink = url; // Store link to compare later
             }
         }
     }, 300);
