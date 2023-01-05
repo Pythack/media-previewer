@@ -39,9 +39,12 @@ prevvid.addEventListener("error", (event) => {
     }
 });
 var prevvidsrc = document.createElement("source");
+var prevpdf = document.createElement("object");
+prevpdf.type = "application/pdf";
 prevvid.appendChild(prevvidsrc);
 previmgdiv.appendChild(previmg);
 previmgdiv.appendChild(prevvid);
+previmgdiv.appendChild(prevpdf);
 prevdiv.appendChild(prevdims);
 prevdiv.appendChild(previmgdiv);
 document.body.appendChild(prevdiv);
@@ -118,23 +121,32 @@ function onhoverupdate(event) { // When mouse hovers an element
                 prevdiv.style.left = (posx + offset).toString() + "px";
                 prevdiv.style.right = "";
             }
+            previmg.style.display = "none"; // Hide image previewer
+            prevvid.style.display = "none"; // Hide video previewer
+            prevpdf.style.display = "none"; // Hide pdf previewer
             if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase())) { // If file is an image
                 previmg.src = url; // Set the source to the url
                 previmg.onload = updateDimensions; // Update the dimensions
-                prevvid.style.display = "none"; // Hide video previewer
                 previmg.style.display = "block"; // Display image previewer
                 prevdiv.style.display = "block"; // Display preview
                 localStorage.prevlink = url; // Store link to compare later
             } else if (/^video\/(mp4|x-matroska|avi)$/.test(mimetype.toLowerCase())) { // If file is a video
                 prevvidsrc.src = url; // Set the source to the url
                 prevvidsrc.type = mimetype; // Set the type to the MIME type
-                prevvid.onload = updateDimensions; // Update the dimensions
                 prevvid.load(); // Load video
                 prevdims.innerText = ""; // Hide dimensions (because dimension feature for video is not available yet)
-                previmg.style.display = "none"; // Hide image previewer
                 prevvid.style.display = "block"; // Display video previewer
                 prevdiv.style.display = "block"; // Display preview
                 localStorage.prevlink = url; // Store link to compare later
+            } else if (/^application\/(pdf)$/.test(mimetype.toLowerCase())) {
+                prevpdf.data = url;
+                prevpdf.type = mimetype;
+                prevpdf.width = Math.round(vw/2).toString() + "px";
+                prevpdf.height = Math.round(vh/2).toString() + "px";
+                prevdims.innerText = "";
+                prevpdf.style.display = "block";
+                prevdiv.style.display = "block";
+                localStorage.prevlink = url;
             }
         }
     }, 300);
