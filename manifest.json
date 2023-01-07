@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Media previewer",
   "author": "Pythack",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "description": "Preview media by hovering over its URL",
   "background": {
     "service_worker": "background.js"
@@ -14,11 +14,22 @@
       "css": ["previewer.css"]
     }
   ],
+  "icons": {
+    "16": "./images/icon-16.png",
+    "48": "./images/icon-48.png",
+    "128": "./images/icon.png"
+  },
   "host_permissions": ["<all_urls>"],
   "permissions": ["storage"],
   "action": {
-    "default_icon": "iconactive.png",
+    "default_icon": "./images/iconactive.png",
     "default_title": "Media previewer",
     "browser_style": true
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["./images/"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

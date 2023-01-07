@@ -20,10 +20,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function sendToAllTabs(object) {
     browser.tabs.query({}).then((result) => { // Get all tabs
         result.forEach((tab) => { // For each tab
-            if (/^((chrome|about):\/\/.*|$|https:\/\/chrome\.google\.com\/webstore.*|undefined)/.test(tab.url)) {
-            } else {
-                browser.tabs.sendMessage(tab.id, object); // Send message to tab
-            }
+            browser.tabs.sendMessage(tab.id, object).catch(error => {}); // Send message to tab
         });
     });
 }
@@ -34,11 +31,11 @@ browser.action.onClicked.addListener(() => { // When the browser action is click
         if (response.deactivated) { // If deactivated
             browser.storage.local.set({deactivated: false}); // Set to false
             sendToAllTabs({request: "update-enable",activated: true}); // Send update to tabs
-            browser.action.setIcon({path: browser.runtime.getURL('./iconactive.png')}); // Update icon
+            browser.action.setIcon({path: './images/iconactive.png'}); // Update icon
         } else {
             browser.storage.local.set({deactivated: true}); // Set to true
             sendToAllTabs({request: "update-enable",activated: false}); // Send update to tabs
-            browser.action.setIcon({path: browser.runtime.getURL('./icondisabled.png')}); // Update icon
+            browser.action.setIcon({path: './images/icondisabled.png'}); // Update icon
         }
     });
 });
