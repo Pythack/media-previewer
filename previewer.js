@@ -81,10 +81,20 @@ async function getMIME(url) { // Make a HTTP request to get Mime type of file
     });
 }
 
+function getTheLink(el) {
+    if (!el) {
+        return null;
+    }
+    if (el.tagName == "A") {
+        return el;
+    }
+    return getTheLink(el.parentNode);
+}
+
 function onhoverupdate(event) { // When mouse hovers an element
     clearTimeout(timeout); // Clear the previous timeout
-    let hovel = event.target; // Get the hovered element
-    if (!(hovel.localName == "a" || hovel.id == "media-preview-div" || (hovel.offsetParent && hovel.offsetParent.id == "media-preview-div"))) { // If the hovered element is neither a link, or an element on the preview
+    let hovel = getTheLink(event.target); // Get the hovered element
+    if (!((hovel != null && hovel.tagName == "A") || event.target.id == "media-preview-div" || (event.target.offsetParent != null && event.target.offsetParent.id == "media-preview-div"))) { // If the hovered element is neither a link, or an element on the preview
         if (timeouthide == null) { // If timeout to hiding the previous is not set
             timeouthide = setTimeout(hidePreview, 300); // Set timeout to hide preview
         }
@@ -92,63 +102,64 @@ function onhoverupdate(event) { // When mouse hovers an element
     }
     clearTimeout(timeouthide); // If the element passed the tests: abort hide preview timeout
     timeouthide = null; // Set it to null
-    if (hovel.localName != "a") { // If it is not a link, abort
+    if (hovel == null || hovel.tagName != "A") { // If it is not a link, abort
         return;
     }
     let posx = event.clientX; // Get position of mouse
     let posy = event.clientY;
     timeout = setTimeout(async () => { // Set timeout to show preview
         const url = hovel.href; // Get the url the link points to
-        let mimetype = await getMIME(url); // Get mime type of file
-        if ((prevdiv.style.display == "none" || localStorage.prevlink != url) && activated) { // If the preview is not hidden or the link changed and the extension is activated
-            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0); // Get dimensions of the viewport
-            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-            hidePreview(); // Hide the preview while it is updated
-            prevdiv.style.position = "fixed"; // Set position to fixed
-            // Decide where to place the preview depending on the position of the mouse in the viewport
-            const offset = 10;
-            if (posy >= vh/2) {
-                prevdiv.style.bottom = (vh - posy + offset).toString() + "px";
-                prevdiv.style.top = "";
-            } else {
-                prevdiv.style.top = (posy + offset).toString() + "px";
-                prevdiv.style.bottom = "";
+        getMIME(url).then(mimetype => { // Get mime type of file
+            if ((prevdiv.style.display == "none" || localStorage.prevlink != url) && activated) { // If the preview is not hidden or the link changed and the extension is activated
+                const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0); // Get dimensions of the viewport
+                const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+                hidePreview(); // Hide the preview while it is updated
+                prevdiv.style.position = "fixed"; // Set position to fixed
+                // Decide where to place the preview depending on the position of the mouse in the viewport
+                const offset = 10;
+                if (posy >= vh/2) {
+                    prevdiv.style.bottom = (vh - posy + offset).toString() + "px";
+                    prevdiv.style.top = "";
+                } else {
+                    prevdiv.style.top = (posy + offset).toString() + "px";
+                    prevdiv.style.bottom = "";
+                }
+                if (posx >= vw/2) {
+                    prevdiv.style.right = (vw - posx + offset).toString() + "px";
+                    prevdiv.style.left = "";
+                } else {
+                    prevdiv.style.left = (posx + offset).toString() + "px";
+                    prevdiv.style.right = "";
+                }
+                previmg.style.display = "none"; // Hide image previewer
+                prevvid.style.display = "none"; // Hide video previewer
+                prevpdf.style.display = "none"; // Hide pdf previewer
+                if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase())) { // If file is an image
+                    previmg.src = url; // Set the source to the url
+                    previmg.onload = updateDimensions; // Update the dimensions
+                    previmg.style.display = "block"; // Display image previewer
+                    prevdiv.style.display = "block"; // Display preview
+                    localStorage.prevlink = url; // Store link to compare later
+                } else if (/^video\/(mp4|x-matroska|avi)$/.test(mimetype.toLowerCase())) { // If file is a video
+                    prevvidsrc.src = url; // Set the source to the url
+                    prevvidsrc.type = mimetype; // Set the type to the MIME type
+                    prevvid.load(); // Load video
+                    prevdims.innerText = ""; // Hide dimensions (because dimension feature for video is not available yet)
+                    prevvid.style.display = "block"; // Display video previewer
+                    prevdiv.style.display = "block"; // Display preview
+                    localStorage.prevlink = url; // Store link to compare later
+                } else if (/^application\/(pdf)$/.test(mimetype.toLowerCase())) {
+                    prevpdf.data = url;
+                    prevpdf.type = mimetype;
+                    prevpdf.width = Math.round(vw/2).toString() + "px";
+                    prevpdf.height = Math.round(vh/2).toString() + "px";
+                    prevdims.innerText = "";
+                    prevpdf.style.display = "block";
+                    prevdiv.style.display = "block";
+                    localStorage.prevlink = url;
+                }
             }
-            if (posx >= vw/2) {
-                prevdiv.style.right = (vw - posx + offset).toString() + "px";
-                prevdiv.style.left = "";
-            } else {
-                prevdiv.style.left = (posx + offset).toString() + "px";
-                prevdiv.style.right = "";
-            }
-            previmg.style.display = "none"; // Hide image previewer
-            prevvid.style.display = "none"; // Hide video previewer
-            prevpdf.style.display = "none"; // Hide pdf previewer
-            if (/^image\/(png|jpg|jpeg|webp)$/.test(mimetype.toLowerCase())) { // If file is an image
-                previmg.src = url; // Set the source to the url
-                previmg.onload = updateDimensions; // Update the dimensions
-                previmg.style.display = "block"; // Display image previewer
-                prevdiv.style.display = "block"; // Display preview
-                localStorage.prevlink = url; // Store link to compare later
-            } else if (/^video\/(mp4|x-matroska|avi)$/.test(mimetype.toLowerCase())) { // If file is a video
-                prevvidsrc.src = url; // Set the source to the url
-                prevvidsrc.type = mimetype; // Set the type to the MIME type
-                prevvid.load(); // Load video
-                prevdims.innerText = ""; // Hide dimensions (because dimension feature for video is not available yet)
-                prevvid.style.display = "block"; // Display video previewer
-                prevdiv.style.display = "block"; // Display preview
-                localStorage.prevlink = url; // Store link to compare later
-            } else if (/^application\/(pdf)$/.test(mimetype.toLowerCase())) {
-                prevpdf.data = url;
-                prevpdf.type = mimetype;
-                prevpdf.width = Math.round(vw/2).toString() + "px";
-                prevpdf.height = Math.round(vh/2).toString() + "px";
-                prevdims.innerText = "";
-                prevpdf.style.display = "block";
-                prevdiv.style.display = "block";
-                localStorage.prevlink = url;
-            }
-        }
+        }).catch(error => {});
     }, 300);
 }
 
